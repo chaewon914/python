@@ -16,7 +16,8 @@ for music in musics:
     artist = music.select_one('a.artist.ellipsis')
     # 공백제거
     title = title.text.strip()
-    artist = artist.text.strip()
+    title = title.replace(" ","")
+    artist = artist.text.replace(" ","")
     if len(title) > 0:
         rank+=1
     print(rank,title,artist)
