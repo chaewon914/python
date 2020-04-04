@@ -1,0 +1,21 @@
+* {
+    font-family: 'Sunflower', sans-serif;
+  }
+
+#image {
+    width: 500px;
+    margin: 0 auto 0 100px;
+  }
+
+.wrapper {
+    width: 700px;
+    margin: 0 auto 100px auto;
+  }
+
+#btn {
+    margin: auto 300px auto 300px;
+  }
+.table{
+    width: 700px;
+    margin:auto;
+  }

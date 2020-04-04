@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <!-- JS -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
+  <link href="https://fonts.googleapis.com/css?family=Sunflower:300&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='shop.css') }}">
+
+  <script>
+    function check_number(num){
+        var regExp= /^(01[0|1|6|7|8|9]{1}|02|0[3-9]{1}[0-9]{1})[-][0-9]{3,4}[-][0-9]{4}$/;
+          return regExp.test(num);}
+
+    function order() {
+      let name = $('#name').val();
+      let count = $('#count').val();
+      let address = $('#address').val();
+      let number = $('#number').val();
+      if (name == '') {
+        alert("이름을 입력해주세요.");
+        $('#name').focus()
+        return
+      }
+      else if (count == '--수량을 선택하세요--') {
+        alert("수량을 입력해주세요.");
+        $('#count').focus()
+        return
+      }
+      else if (address == '') {
+        alert("주소를 입력해주세요.");
+        $('#address').focus()
+        return
+      }
+      else if (number == '') {
+        alert("번호를 입력해주세요.");
+        $('#number').focus()
+        return
+      }
+      else if (!check_number(number)){
+          alert("잘못된 번호입니다. -를 포함한 숫자만 입력하세요.");
+          $('#number').focus()
+          return
+      }
+      $.ajax({
+                type: 'POST', // 타입을 작성합니다.
+                url: '/orders', // url을 작성합니다.
+                data: {'name_give': name, 'count_give': count, 'address_give': address, 'number_give':number}, // data를 작성합니다. },
+                success: function (response) {
+                    if (response['result'] == 'success') {
+                        alert(response['msg']);
+                        $('#name').val('')
+                        $('#count').val('')
+                        $('#address').val('')
+                        $('#number').val('')
+                        window.location.reload();
+                    }
+                }
+            });
+    }
+    $(document).ready(function () {
+            $('#order_list').html('');
+            listing();
+        });
+
+    function listing() {
+            $.ajax({
+                type: "GET",
+                url: "/orders",
+                data: {},
+                success: function (response) {
+                    if (response['result'] == 'success') {
+                      console.log(response['orders']);
+                        let orders = response['orders'];
+                        for(i=0; i<orders.length; i++){
+                            make_list(orders[i]['name'],orders[i]['count'],orders[i]['address'],orders[i]['number'])
+                        }
+                    } else {
+                        alert('주문정보를 받아오지 못했습니다');
+                    }
+                }
+            });
+        }
+
+        function make_list(name, count, address, number) {
+            let temp_html = '<tr>\
+                                <td>'+ name + '</td>\
+                                <td>'+ count+ '</td>\
+                                <td>'+ address+ '</td>\
+                                <td>'+ number+ '</td>\
+                            </tr>';
+            $('#order_list').append(temp_html);
+    
+        }
+      
+
+  </script>
+
+</head>
+
+<body>
+  <div class='wrapper'>
+    <!-- 사진,설명 -->
+    <div>
+      <img id='image'
+        src="https://image.powderroom.co.kr/o/351fb0363cc2158e/fa/44/e8/31d0c361cdda4ecf46c732fde1475b9eef.jpg" />
+      </br>
+      <span style="font-size: 40px;">[구찌 블룸] 50ml 오 드 퍼퓸</span>
+      <span style="font-size: 20px;">가격: ₩ 132,000</span>
+      <p>알레산드로 미켈레의 독창적인 시각이 담긴 첫 번째 향수: 개개인의 여성 안에 자연스럽지만 매우 분명하게 내재된 진정성, 생명력 그리고 다양성을 기념하고자 탄생한 향. 남인도에서 볼 수 있는 특별한
+        꽃으로 최초로 향수 제조에 사용된 랑군 크리퍼는 튜베로즈 및 재스민과 조화를 이루며, 풍부하고 짙은 향으로 상상 속 정원에 와있는 듯한 느낌을 선사합니다. </p>
+    </div>
+
+    <!-- 이름 -->
+    <div class="input-group mb-3">
+      <div class="input-group-prepend">
+        <span class="input-group-text" id="inputGroup-sizing-default">주문자 이름:</span>
+      </div>
+      <input id='name' type="text" class="form-control" aria-label="Sizing example input"
+        aria-describedby="inputGroup-sizing-default">
+    </div>
+
+    <!-- 수량 -->
+    <div class="input-group mb-3">
+      <div class="input-group-prepend">
+        <label class="input-group-text" for="inputGroupSelect01">수량</label>
+      </div>
+      <select id='count' class="custom-select" id="inputGroupSelect01">
+        <option selected>--수량을 선택하세요--</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+      </select>
+    </div>
+
+    <!-- 주소 -->
+    <div class="input-group mb-3">
+      <div class="input-group-prepend">
+        <span class="input-group-text" id="inputGroup-sizing-default">주소</span>
+      </div>
+      <input id="address" type="text" class="form-control" aria-label="Sizing example input"
+        aria-describedby="inputGroup-sizing-default">
+    </div>
+
+    <!-- 전화번호 -->
+    <div class="input-group mb-3">
+      <div class="input-group-prepend">
+        <span class="input-group-text" id="inputGroup-sizing-default">전화번호</span>
+      </div>
+      <input id='number' type="text" class="form-control" aria-label="Sizing example input"
+        aria-describedby="inputGroup-sizing-default">
+    </div>
+
+    <!-- 주문하기버튼 -->
+    <button onclick="order();" id='btn' type="button" class="btn btn-outline-info">주문하기</button>
+
+  </div>
+
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th scope="col">이름</th>
+        <th scope="col">수량</th>
+        <th scope="col">주소</th>
+        <th scope="col">전화번호</th>
+      </tr>
+    </thead>
+    <tbody id='order_list'>
+
+    </tbody>
+  </table>
+
+
+</body>
+
+</html>
